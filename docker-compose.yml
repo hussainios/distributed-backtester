@@ -6,4 +6,26 @@ services:
     environment:
       APP_ENV: development
       LOG_LEVEL: INFO
+      DATABASE_URL: postgresql+psycopg://backtester:backtester@postgres:5432/backtester
+    depends_on:
+      postgres:
+        condition: service_healthy
 
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: backtester
+      POSTGRES_USER: backtester
+      POSTGRES_PASSWORD: backtester
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U backtester -d backtester"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres-data:
